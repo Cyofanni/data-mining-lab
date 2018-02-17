@@ -1,0 +1,277 @@
+> data(wine, package='rattle')   -->    si carica solo il dataset
+> 
+> table(wine$Type)
+
+ 1  2  3 
+59 71 48 
+>  ===> i gruppi sono piu o meno omogenei
+
+Quando c'e' una variabile distinta su piu classi, -> utilizzare il 'barplot'
+> barplot(table(wine$Type))
+
+Si puo' vedere come sono collegate tra loro le variabili esplicative
+> pairs(wine[, 2:7])    ====> non sembra che ci siano relazioni forti tra le variabili
+
+Non facciamo la regressione logistica perche' le classi sono 3
+
+Costruiamo il modello di analisi discriminante lineare:
+> library(MASS)
+> wine.lda <- lda(Type ~ ., data=wine)      #usate tutte le variabili
+> 
+Essendoci 3 gruppi da distinguere, le funzioni discriminante lineare saranno 2 
+> wine.lda
+Call:
+lda(Type ~ ., data = wine)
+
+Prior probabilities of groups:
+        1         2         3 
+0.3314607 0.3988764 0.2696629 
+
+Group means:
+   Alcohol    Malic      Ash Alcalinity Magnesium  Phenols Flavanoids
+1 13.74475 2.010678 2.455593   17.03729  106.3390 2.840169  2.9823729
+2 12.27873 1.932676 2.244789   20.23803   94.5493 2.258873  2.0808451
+3 13.15375 3.333750 2.437083   21.41667   99.3125 1.678750  0.7814583
+  Nonflavanoids Proanthocyanins    Color       Hue Dilution   Proline
+1      0.290000        1.899322 5.528305 1.0620339 3.157797 1115.7119
+2      0.363662        1.630282 3.086620 1.0562817 2.785352  519.5070
+3      0.447500        1.153542 7.396250 0.6827083 1.683542  629.8958
+
+Coefficients of linear discriminants:    (sono 2 perche i gruppi sono 3)
+                         LD1           LD2
+Alcohol         -0.403399781  0.8717930699
+Malic            0.165254596  0.3053797325
+Ash             -0.369075256  2.3458497486
+Alcalinity       0.154797889 -0.1463807654
+Magnesium       -0.002163496 -0.0004627565
+Phenols          0.618052068 -0.0322128171
+Flavanoids      -1.661191235 -0.4919980543
+Nonflavanoids   -1.495818440 -1.6309537953
+Proanthocyanins  0.134092628 -0.3070875776
+Color            0.355055710  0.2532306865
+Hue             -0.818036073 -1.5156344987
+Dilution        -1.157559376  0.0511839665
+Proline         -0.002691206  0.0028529846> 
+
+
+Proportion of trace:   (percentuale di separazione tra i gruppi che ciascuna funzione discriminante riesce a fare)
+   LD1    LD2 
+0.6875 0.3125 
+
+> plot(wine.lda)   -->  di default riporta un diagramma di dispersione
+ 		        con i punti indicati da il numero di gruppo
+il gruppo 1 e il gruppi 2 sono abbastanza separati, il gruppo 2 e il gruppo 3
+sono piu separati, la separazione e' sufficiente (0.69); la funzione discriminante
+2 discrimina molto peggio, discrimina solo i gruppi 1 e 2;
+per vedere la stessa cosa come istogramma: > wine.previsioni <- predict(wine.lda)
+
+> ldahist(wine.previsioni$x[,1], g = wine$Type):   ===> OUTPUT: 3 istogrammi
+cosi si usa la prima funzione discriminante (,1)
+
+NB: > cor(wine$Phenols, wine$Flavanoids)
+[1] 0.8645635  :    sono abbastanza correlate, ma le variabili sono tante, dunque
+il danno non e' grosso, comunque si potrebbe rifare l'analisi togliendo una variabile
+
+#############################################################################
+VALIDAZIONE INCROCIATA E SELEZIONE DEL MODELLO> 
+rm(list=ls())
+> data(Boston)
+> dim(Boston)
+[1] 506  14
+> m <- lm(medv ~ lstat, data=Boston)  --> NON BENE
+> m <- lm(medv ~ lstat + I(lstat ^2), data=Boston)   --> MEGLIO
+> m <- lm(medv ~ lstat + I(lstat ^2) + I(lstat^3), data=Boston)   --> MEGLIO ANCORA IN TEORIA, se dovessi controllare a mano, guarderei le star dei p-value, che dicono che nell'ultimo modello e' tutto significativo
+R-quadro e R-quadro aggiustato sono vicini
+Come si estrae il R-quadro aggiustato? :    > summary(m2)$adj.r.squared
+vo
+- AIC = 2*p - 2 * log - verosimiglianza
+> aic.m2 <- 2 * 2 - 2*logLik(m2)
+> aic.m2
+'log Lik.' 3166.516 (df=4)
+a     (p: numero parametri
+> aic.m3 <- 2 * 3 - 2*logLik(m3)
+> aic.m3
+'log Lik.' 3143.796 (df=5)
+il modello m3 ha AIC minore, con differenza maggiore di 1 (22.72) ===> molto grande,
+dunque ha senso passare al modello m3 
+> m2.glm <- glm(medv ~ lstat + I(lstat ^2), data=Boston)  (modello generalizzato)
+   ==> e' un espediente per avere in automatico l'AIC
+> m3.glm <- glm(medv ~ lstat + I(lstat ^2) + I(lstat^3), data=Boston)
+
+m2.glm$aic - m3.glm$aic    ===> altro modo per ottenere la differenza di AIC (ma piu precisa)
+#aic: polinomio di ordine 5
+# r2 aggiustato: polinomio di ordine 6
+====> CROSS VALIDATION  ===> carica 'library(boot)'
+> m5.glm <- glm(medv ~ poly(lstat, 5), data = Boston)
+> m6.glm <- glm(medv ~ poly(lstat, 6), data = Boston)
+ploy(lstat,5) = lstat + I(lstat^2) + ..... + I(lstat^5)
+    poly ritorna dei coefficienti un po' diversi (i beta cappello cambiano),
+    ma per i nostri scopi non cambia nulla
+Cominciamo con la Cross validation 10-folds
+
+> cv.m5 <- cv.glm(Boston, m5.glm, K=10)
+> names(cv.m5)
+[1] "call"  "K"     "delta" "seed"
+  A noi interessa 'delta' 
+> cv.m5$delta
+[1] 27.58882 27.54879
+> cv.m6 <- cv.glm(Boston, m6.glm, K=10)
+> cv.m6$delta
+[1] 27.34766 27.31611
+> loocv.m5 <- cv.glm(Boston, m5.glm)
+> loocv.m6 <- cv.glm(Boston, m6.glm)
+> loocv.m6$delta
+[1] 27.61313 27.61226
+> loocv.m5$delta
+[1] 27.65221 27.65137
+> loocv.m6$delta
+[1] 27.61313 27.61226
+
+############
+SELEZIONE AUTOMATICA DEL MODELLO
+il problema e' che ci sono tante variabili
+ci sono dati mancanti, ci sono vari metodi per trattare i dati mancanti,
+esitono vari tipi di dati mancanti (random o non random); per ora eliminiamo i dati
+mancanti, cosi':     > hitters <- na.omit(Hitters)
+- Vediamo selezione avanti indietro, mista in modo automatico
+**SELEZIONE FORWARD
+> m.forward <- regsubsets(Salary ~ ., data=hitters, nvmax=19, method='forward')
+> summary(m.forward)
+Subset selection object
+Call: regsubsets.formula(Salary ~ ., data = hitters, nvmax = 19, method = "forward")
+19 Variables  (and intercept)
+           Forced in Forced out
+AtBat          FALSE      FALSE
+Hits           FALSE      FALSE
+HmRun          FALSE      FALSE
+Runs           FALSE      FALSE
+RBI            FALSE      FALSE
+Walks          FALSE      FALSE
+Years          FALSE      FALSE
+CAtBat         FALSE      FALSE
+CHits          FALSE      FALSE
+CHmRun         FALSE      FALSE
+CRuns          FALSE      FALSE
+CRBI           FALSE      FALSE
+CWalks         FALSE      FALSE
+LeagueN        FALSE      FALSE
+DivisionW      FALSE      FALSE
+PutOuts        FALSE      FALSE
+Assists        FALSE      FALSE
+Errors         FALSE      FALSE
+NewLeagueN     FALSE      FALSE
+1 subsets of each size up to 19
+Selection Algorithm: forward
+          AtBat Hits HmRun Runs RBI Walks Years CAtBat CHits CHmRun CRuns CRBI
+1  ( 1 )  " "   " "  " "   " "  " " " "   " "   " "    " "   " "    " "   "*" 
+2  ( 1 )  " "   "*"  " "   " "  " " " "   " "   " "    " "   " "    " "   "*" 
+3  ( 1 )  " "   "*"  " "   " "  " " " "   " "   " "    " "   " "    " "   "*" 
+4  ( 1 )  " "   "*"  " "   " "  " " " "   " "   " "    " "   " "    " "   "*" 
+5  ( 1 )  "*"   "*"  " "   " "  " " " "   " "   " "    " "   " "    " "   "*" 
+6  ( 1 )  "*"   "*"  " "   " "  " " "*"   " "   " "    " "   " "    " "   "*" 
+7  ( 1 )  "*"   "*"  " "   " "  " " "*"   " "   " "    " "   " "    " "   "*" 
+8  ( 1 )  "*"   "*"  " "   " "  " " "*"   " "   " "    " "   " "    "*"   "*" 
+9  ( 1 )  "*"   "*"  " "   " "  " " "*"   " "   "*"    " "   " "    "*"   "*" 
+10  ( 1 ) "*"   "*"  " "   " "  " " "*"   " "   "*"    " "   " "    "*"   "*" 
+11  ( 1 ) "*"   "*"  " "   " "  " " "*"   " "   "*"    " "   " "    "*"   "*" 
+12  ( 1 ) "*"   "*"  " "   "*"  " " "*"   " "   "*"    " "   " "    "*"   "*" 
+13  ( 1 ) "*"   "*"  " "   "*"  " " "*"   " "   "*"    " "   " "    "*"   "*" 
+14  ( 1 ) "*"   "*"  "*"   "*"  " " "*"   " "   "*"    " "   " "    "*"   "*" 
+15  ( 1 ) "*"   "*"  "*"   "*"  " " "*"   " "   "*"    "*"   " "    "*"   "*" 
+16  ( 1 ) "*"   "*"  "*"   "*"  "*" "*"   " "   "*"    "*"   " "    "*"   "*" 
+17  ( 1 ) "*"   "*"  "*"   "*"  "*" "*"   " "   "*"    "*"   " "    "*"   "*" 
+18  ( 1 ) "*"   "*"  "*"   "*"  "*" "*"   "*"   "*"    "*"   " "    "*"   "*" 
+19  ( 1 ) "*"   "*"  "*"   "*"  "*" "*"   "*"   "*"    "*"   "*"    "*"   "*" 
+          CWalks LeagueN DivisionW PutOuts Assists Errors NewLeagueN
+1  ( 1 )  " "    " "     " "       " "     " "     " "    " "       
+2  ( 1 )  " "    " "     " "       " "     " "     " "    " "       
+3  ( 1 )  " "    " "     " "       "*"     " "     " "    " "       
+4  ( 1 )  " "    " "     "*"       "*"     " "     " "    " "       
+5  ( 1 )  " "    " "     "*"       "*"     " "     " "    " "       
+6  ( 1 )  " "    " "     "*"       "*"     " "     " "    " "       
+7  ( 1 )  "*"    " "     "*"       "*"     " "     " "    " "       
+8  ( 1 )  "*"    " "     "*"       "*"     " "     " "    " "       
+9  ( 1 )  "*"    " "     "*"       "*"     " "     " "    " "       
+10  ( 1 ) "*"    " "     "*"       "*"     "*"     " "    " "       
+11  ( 1 ) "*"    "*"     "*"       "*"     "*"     " "    " "       
+12  ( 1 ) "*"    "*"     "*"       "*"     "*"     " "    " "       
+13  ( 1 ) "*"    "*"     "*"       "*"     "*"     "*"    " "       
+14  ( 1 ) "*"    "*"     "*"       "*"     "*"     "*"    " "       
+15  ( 1 ) "*"    "*"     "*"       "*"     "*"     "*"    " "       
+16  ( 1 ) "*"    "*"     "*"       "*"     "*"     "*"    " "       
+17  ( 1 ) "*"    "*"     "*"       "*"     "*"     "*"    "*"       
+18  ( 1 ) "*"    "*"     "*"       "*"     "*"     "*"    "*"       
+19  ( 1 ) "*"    "*"     "*"       "*"     "*"     "*"    "*"  
+
+
+NB: Nessun legame con le stelline del p-value
+La selezione in avanti parte da una sola variabile, dunque se abbiamo 19 variabile
+costruisce 19 modelli con n variabili, aumentando la n ad ogni passo, poi sceglie il migliore con criteri come AIC, BIC o R-quadro
+, quello di default e' BIC
+
+> m.forward
+Subset selection object
+Call: regsubsets.formula(Salary ~ ., data = hitters, nvmax = 19, method = "forward")
+19 Variables  (and intercept)
+NB*** TUTTO FALSO perche non abbiamo forzato nessuna variabile a far parte del modello
+           Forced in Forced out
+AtBat          FALSE      FALSE
+Hits           FALSE      FALSE
+HmRun          FALSE      FALSE
+Runs           FALSE      FALSE
+RBI            FALSE      FALSE
+Walks          FALSE      FALSE
+Years          FALSE      FALSE
+CAtBat         FALSE      FALSE
+CHits          FALSE      FALSE
+CHmRun         FALSE      FALSE
+CRuns          FALSE      FALSE
+CRBI           FALSE      FALSE
+CWalks         FALSE      FALSE
+LeagueN        FALSE      FALSE
+DivisionW      FALSE      FALSE
+PutOuts        FALSE      FALSE
+Assists        FALSE      FALSE
+Errors         FALSE      FALSE
+NewLeagueN     FALSE      FALSE
+1 subsets of each size up to 19
+- > names(summary(m.forward))
+[1] "which"  "rsq"    "rss"    "adjr2"  "cp"     "bic"    "outmat" "obj" 
+> summary(m.forward)$rss
+ [1] 36179679 30646560 29249297 27970852 27149899 26194904 25954217 25159234
+ [9] 24814051 24500402 24387345 24333232 24289148 24248660 24235177 24219377
+[17] 24209447 24201837 24200700
+> which.min(summary(m.forward)$rss)   'qual e' il minimo rss'
+[1] 19
+> coef(m.forward, 19)
+ (Intercept)        AtBat         Hits        HmRun         Runs          RBI 
+ 163.1035878   -1.9798729    7.5007675    4.3308829   -2.3762100   -1.0449620 
+       Walks        Years       CAtBat        CHits       CHmRun        CRuns 
+   6.2312863   -3.4890543   -0.1713405    0.1339910   -0.1728611    1.4543049 
+        CRBI       CWalks      LeagueN    DivisionW      PutOuts      Assists 
+   0.8077088   -0.8115709   62.5994230 -116.8492456    0.2818925    0.3710692 
+      Errors   NewLeagueN 
+  -3.3607605  -24.7623251 
+******************************
+- > summary(m.forward)$bic
+ [1]  -90.84637 -128.92622 -135.62693 -141.80892 -144.07143 -147.91690
+ [7] -144.77245 -147.38199 -145.44316 -143.21651 -138.86077 -133.87283
+[13] -128.77759 -123.64420 -118.21832 -112.81768 -107.35339 -101.86391
+[19]  -96.30412
+> which.min(summary(m.forward)$bic)
+[1] 6    ======> I.E. secondo il bic il miglior modello ha 6 variabili!:
+`    queste	> coef(m.forward, 6)
+ (Intercept)        AtBat         Hits        Walks         CRBI    DivisionW 
+  91.5117981   -1.8685892    7.6043976    3.6976468    0.6430169 -122.9515338 
+     PutOuts 
+   0.2643076 
+ 
+> plot(m.forward)   :    il grafico si legge dal basso verso l'alto
+        ogni riga corrisponde ad un passo dell'algoritmo
+	le parti colorate di nero indica che in quel tentativo dell'algoritmo
+	ha selezionato quella variabile ===> l'ultima riga in alto corrisponde 
+ 	al modello vincitore (corrisponde al BIC piu piccolo)
+
+NB: SI parte dalla selezione automatica, ma non basta, poi meglio
+    usare le tecniche usuali
+

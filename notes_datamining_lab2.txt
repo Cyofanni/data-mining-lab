@@ -1,0 +1,70 @@
+funzione 'names': visualizza gli oggetti estraibili dal modello
+summary(m): riassunto del modello
+
+Residui:  2 tipi ->    1) y - y.stimato  (residui normali-classici, hanno
+			          il problema che possono diventare enormi)
+		       2) residui standardizzati -> sono i residui corretti
+			           per media e varianza
+
+residuals:  calcola i residui, tutti i modelli devono essere applicati a questa funzione
+
+par(mfrow=c(2,2)) : divide la finestra grafica in 2 righe e 2 colonne
+
+Grafico di dispersione dei residui: plot(residui)
+
+abline:   aggiunge rette con inclinazione data
+
+Grafico di dispersione dei residui vs lstat(variabile esplicativa) -> in ascissa la variabile esplicativa(lstat)
+				
+plot(fitted(m), residui, cex.lab=1.4, cex.axis=1.4)
+
+Ipotesi per i residui:
+	1) Media nulla
+	2) Varianza costante
+	3) Distribuzione normale
+	4) Indipendenza dalle x
+
+Comportamenti anomali -> si vedono da osservazioni anomale nella nuvola di punti ->
+	non sono necessariamente dannosi per il modello
+
+I residui standardizzati -> devono seguire una distribuzione normale standard (-1.96 / +1.96)
+     ----> ottenuti con:  rstandard(m)
+
+Quando gia' il 95% sta dentro le bande va bene.
+
+
+Se si stima un modello di classificazione, R da sempre un grafico, anche se non ha molto senso.
+
+R, con una linea rossa indica automaticamente un possibile andamento deterministico.
+
+Normal Q-Q -> diagramma grafico quantile-quantile: se il modello va bene, i quantili dovrebbero stare
+sulla bisettrice del primo-terzo quadrante -> in questo grafico R segna anche valori sospetti
+
+Punti leva (leverage): residui standardizzati vs punti leva -> la leva dei residui e' un info calcolata sui residui
+che dice quanto e' influente quel residuo sul risultato del modello.
+I punti in alto a destra del grafico sono i punti che hanno maggior peso.
+Come si capisce se un punto anomalo e' un punto leva: con la distanza di Cook, secondo cui valori piu' grandi di 1
+sono punti anomali; allora si valuta perche' il punto e' anomalo, e si toglie il punto dal modello per vedere se e' robusto
+
+
+qt(df) -> funzione che trova il quantile, df = degrees of freedom
+
+
+confint -> calcola l'intervallo di confidenza per tutti i parametri in un colpo solo, di default
+	fa l'intervallo di confidenza al 95%
+
+Livello di significativita' osservato.
+
+Previsione fuori dal training set (in un test set) + intervallo previsivo:
+  comando predict(m, newdata=data.frame(list(lstat=c(5,10,25))), interval='prediction')
+   5,10,25 -> 3 possibili valori della variabile lstat, 
+   interval = 'prediction' --> per fare la previsione dell'intervallo
+
+
+
+Modello di regressione multipla:
+  names(Boston) -> variabili del modello
+  plot(Boston$crim, Boston$medv, xlab='Crime', ylab='Price')
+  - nuovo modello:  m2 <- lm(medv ~ lstat+crim, data=Boston)
+  - m2 <- update(m, . ~ . + crim)
+

@@ -1,0 +1,54 @@
+> library(pls)
+
+Attaching package: ‘pls’
+
+The following object is masked from ‘package:stats’:
+
+    loadings
+
+> data(gasoline)
+> dim(gasoline)
+[1] 60  2   ## 60 righe e 2 oggetti
+> y <- gasoline$octane
+> y <- gasoline$octane #vettore delle risposte
+> X <- gasoline$NIR
+
+> m.pcr <- pcr(y ~ X, scale=TRUE, ncomp=5) #prende 5 componenti principali 
+> coefplot(m.pcr)
+> scoreplot(m.pcr)
+> scoreplot(m.pcr, comps=1:5)
+> names(m.pcr)    #i residuals non sono i residui classici che conosciamo
+ [1] "coefficients"  "scores"        "loadings"      "Yloadings"    
+ [5] "projection"    "Xmeans"        "Ymeans"        "fitted.values"
+ [9] "residuals"     "Xvar"          "Xtotvar"       "fit.time"     
+[13] "ncomp"         "method"        "scale"         "call"         
+[17] "terms"         "model"     
+Cosa si guadagna usando un metodo di regolarizzazione?
+Dovremo trovare il valore di lambda ottimo tramite cross validation
+> cv.ridge <- cv.glmnet(X, y, alpha=0, lambda.min = 1e-4)   #NB: la sintassi non e' piu' quella standard
+> cv.ridge$lambda.min
+[1] 0.3476072
+> cv.ridge$lambda.1se
+[1] 1.540116
+Vediamo il modello con lambda.min
+> m.ridge <- glmnet(X,y, alpha=0, lambda = cv.ridge$lambda.min)
+CVM(cross validation minimum): > min(cv.ridge$cvm)
+      [1] 0.04543276   #errore quadratico medio che si fa
+> cv.lasso <- cv.glmnet(X, y, alpha=1, lambda.min=1e-4)   # e' un po' piu veloce a calcolare
+> m.lasso.min <- glmnet(X,y, alpha=1, lambda=cv.lasso$lambda.min)
+> min(cv.lasso$cvm)
+Quanti coefficienti vanno a zero?:  > id.zero <- which(coef(m.lasso.min) == 0)
+> length(id.zero)
+[1] 381    # 381 coefficienti sono messi a zero su 401! grande riduzione
+
+Quindi eliminerei il ridge a favore del lasso, ma la regressione con componenti principali puo andare?
+
+> MSEP(m.pcr, ncom=5) # MSE + previsione
+
+> MSEP(cv.pcr, ncomp=5)
+       (Intercept)  5 comps
+CV           2.381  0.05555
+adjCV        2.381  0.05465
+
+La prof preferisce lasso perche' e' piu' interpretabile rispetto alle componenti principali
+

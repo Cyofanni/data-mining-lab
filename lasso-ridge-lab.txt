@@ -1,0 +1,271 @@
+load('Leukemia.RData')
+RData e' creato da R automaticamente, e vengono caricati con load
+> ls()
+[1] "Leukemia"   (file)
+> dim(Leukemia)
+NULL   ====> niente risposta perche' non e' una matrice di dati!
+
+> is.list(Leukemia)
+[1] TRUE    ====> Leukemia e' una lista, ossia una struttura che puo' contenere
+qualunque tipo di oggetto, anche di dimensioni diverse
+ 
+> names(Leukemia)
+[1] "x" "y"	:    per accedere agli elementi della lista
+
+> Leukemia$y
+ [1] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1
+[39] 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 0 0 1 1 0 1 1 1 1 1 1 1 0 0 0 0 0 0
+
+> length(Leukemia$y)
+[1] 72
+
+
+Le possibilita' sono modello di regressione logistica o analisi discriminante lineare,
+non cosi' ovvio perche' bisogna vedere come e' fatta la x
+
+> Leukemia$x
+[3144] 0.4344224 0.5513823 0.3214351 0.6701699 0.3629123 0.3306153 0.5819782
+[3151] 1.1032818 0.4018843 0.2750461 0.3382035 0.9002086 0.2766649 0.2883372
+[3158] 0.8698995 0.2881.6686827 0.8954608 0.5241963 0.3180780 0.5509531
+[3207] 0.4331862 0.5178592 0.5344674 0.6536241 0.6964144 0.3275287 0.5741576
+[3214] 0.5974041 0.2806533 1.0229681 0.5890103 1.2033088 0.4446662 0.3365657
+[3221] 0.4389136 0.2795348 0.4751605 0.4258757 0.6349409 0.5007608 0.3139957
+[3228] 0.8070656 0.6706644 0.7991606 0.3523388 0.9172573 0.3131595 0.3215859
+[3235] 0.3087530 0.9336531 0.3772546 0.5300750 0.4919595 0.3240428 0.6476121
+[3242] 0.4235731 0.6438659 0.5174781 0.8470103 0.4249960 0.4833185 0.4500912
+[3249] 0.4725944 0.6389444 0.3946348 0.4088991 0.4593772 0.2713267 0.3002675
+[3256] 0.4783713 0.4430684 0.4837944 0.4024075 0.5279596 0.3856142 0.4576896
+.........................................................................
+.........................................................................
+[3263] 0.4156532 0.2663632 0.3742834 0.4172853 0.3382298 0.6262836 0.7190375
+[3270] 0.3014970 0.6714760 0.6420151 0.4622904 0.7031200 0.4815624 1.0173200
+[3277] 0.46280423 0.6324553 0.4160337 0.5853030 0.5320525 0.4847561
+[3571] 0.8285899
+====> OUTPUT ENORME
+
+> dim(Leukemia$x)
+[1]   72 3571
+   =====> numero di variabile spropositato rispetto al numero di osservazioni
+Non si riesce a fare un modello di regressione logistica... proviamo
+
+> m <- glm(y ~  x, data=Leukemia, family='binomial')   #classico comando per la regressione logistica, ci mette qualche secondo
+summary(m) ===>
+x3364               NA         NA      NA       NA
+x3365               NA         NA      NA       NA
+x3366               NA         NA      NA       NA
+x3367               NA         NA      NA       NA
+x3368               NA         NA      NA       NA
+x3369               NA         NA      NA       NA
+x3370               NA         NA      NA       NA
+x3371               NA         NA      NA       NA
+x3372               NA         NA      NA       NA
+x3373               NA         NA      NA       NA
+x3374               NA         NA      NA       NA
+x3375               NA         NA      NA       NA
+x3376               NA         NA      NA       NA
+x3377               NA         NA      NA       NA
+x3378               NA         NA      NA       NA
+x3379               NA         NA      NA       NA
+x3380               NA         NA      NA       NA
+x3381               NA         NA      NA       NA
+x3382               NA         NA      NA       NA
+x3383               NA         NA      NA       NA
+x3384               NA         NA      NA       NA
+x3385               NA         NA      NA       NA
+x3386               NA         NA      NA       NA
+x3387               NA         NA      NA       NA
+x3388               NA         NA      NA       NA
+x3389               NA         NA      NA       NA
+x3390               NA         NA      NA       NA
+x3391               NA         NA      NA       NA
+x3392               NA         NA      NA       NA
+x3393               NA         NA      NA       NA
+x3394               NA         NA      NA       NA
+x3395               NA         NA      NA       NA
+x3396               NA         NA      NA       NA
+x3397               NA         NA      NA       NA
+x3398               NA         NA      NA       NA
+x3399               NA         NA      NA       NA
+x3400               NA         NA      NA       NA
+x3401               NA         NA      NA       NA
+x3402               NA         NA      NA       NA
+x3403               NA         NA      NA       NA
+x3404               NA         NA      NA       NA
+x3405               NA         NA      NA       NA
+x3406               NA         NA      NA       NA
+x3407     A       NA
+x3463               NA         NA      NA       NA
+x3464               NA         NA      NA       NA
+x3465               NA         NA      NA       NA
+x3466               NA         NA      NA       NA
+x3467               NA         NA      NA       NA
+x3468               NA         NA      NA       NA
+x3469               NA         NA      NA       NA
+x3470               NA         NA      NA       NA
+x3471               NA         NA      NA       NA
+x3472               NA         NA      NA       NA
+x3473               NA         NA      NA       NA
+x3474               NA         NA      NA       NA
+x3475               NA         NA      NA       NA
+x3476               NA         NA      NA       NA
+x3477               NA         NA      NA       NA
+x3478               NA         NA      NA       NA
+x3479               NA         NA      NA       NA
+x3480               NA         NA      NA       NA
+x3481               NA         NA      NA       NA
+x3482               NA         NA      NA       NA
+x3483               NA         NA      NA       NA
+x3484               NA         NA      NA       NA
+x3485               NA         NA      NA       NA
+x3486               NA         NA      NA       NA
+x3487               NA         NA      NA       NA
+x3488               NA         NA      NA       NA
+x3489               NA         NA      NA       NA
+x3490               NA         NA      NA       NA
+x3491               NA         NA      NA       NA
+x3492               NA         NA      NA       NA
+x3493               NA         NA      NA       NA
+x3494               NA         NA      NA       NA
+x3495               NA         NA      NA       NA
+x3496                  NA      NA       NA
+x3507               NA       NA       NA
+x3526               NA         NA      NA       NA
+x3527               NA         NA      NA       NA
+x3528               NA         NA      NA       NA
+x3529               NA         NA      NA       NA
+x3530               NA         NA      NA       NA
+x3531               NA         NA      NA       NA
+x3532               NA         NA      NA       NA
+x3533               NA         NA      NA       NA
+x3534               NA         NA      NA       NA
+x3535               NA         NA      NA       NA
+x3536               NA         NA      NA       NA
+x3537               NA         NA      NA       NA
+x3538               NA         NA      NA       NA
+x3539               NA         NA      NA       NA
+x3540               NA         NA      NA       NA
+x3541               NA         NA      NA       NA
+x3542                   NA       NA
+x3561               NA         NA      NA       NA
+x3562               NA         NA      NA       NA
+x3563               NA         NA      NA       NA
+x3564               NA         NA      NA       NA
+x3565               NA         NA      NA       NA
+x3566               NA         NA      NA       NA
+x3567               NA         NA      NA       NA
+x3568               NA         NA      NA       NA
+x3569               NA         NA      NA       NA
+x3570               NA         NA      NA       NA
+x3571               NA         NA      NA       NA
+
+(Dispersion parameter for binomial family taken to be 1)
+
+Null deviance: 9.2982e+01  on 71  degrees of freedom
+Residual deviance: 4.1771e-10  on  0  degrees of freedom
+AIC: 144
+
+Number of Fisher Scoring iterations: 25
+   ========> TANTI NA (not a number)!!!:  cioe' non riesce a fare l'analisi classica
+
+====> L'alternativa e':
+	1) Selezione automatica   (non e' fattibile perche' bisogna partire dal modello
+				        completo che sappiamo non essere fattibile!)
+	2) Regolarizzazione  =>  cerchiamo di schiacciare il più possibile dei 
+				      coefficienti verso zero
+	3) Componenti principali  => per ridurre drasticamente la dimensione del problema
+		la scelta tra 2) e 3) e' a piacere,
+		la 2) ha i suoi limiti, la 3) e' complicata da interpretare
+Proviamo la regolarizzazione
+
+> library(glmnet)
+> leukemia.ridge <- glmnet(Leukemia$x, Leukemia$y, alpha=0, family='binomial')
+La regressione ridge non fa selezione!
+> plot(leukemia.ridge, xvar='lambda')  ====> OUTPUT ILLEGGIBILE (3571 curve), molte
+curve vengono schiacciate a zero, comunque i risultati ci sono, si puo' stimare!
+Che valori di lambda ha scelto R? 
+> names(leukemia.ridge)
+ [1] "a0"         "beta"       "df"         "dim"        "lambda"    
+ [6] "dev.ratio"  "nulldev"    "npasses"    "jerr"       "offset"    
+[11] "classnames" "call"       "nobs"   
+> summary(leukemia.ridge$lambda)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  4.093  12.950  40.940  89.190 129.500 409.300 
+   ===> i valori di lambda scelti da R vanno da Min. a Max.  ===>
+	facciamo allargare un po' la griglia cosi:
+leukemia.ridge <- glmnet(Leukemia$x, Leukemia$y, alpha=0, family='binomial', lambda.min=1e-4)
+> summary(leukemia.ridge$lambda)
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+  0.0409   0.4096   4.0980  46.0700  40.9600 409.3000 
+
+> cv.leukemia.ridge <- cv.glmnet(Leukemia$x, Leukemia$y, alpha=0,
++ family='binomial', lambda.min=1e-4)
+
+> names(cv.leukemia.ridge)
+ [1] "lambda"     "cvm"        "cvsd"       "cvup"       "cvlo"      
+ [6] "nzero"      "name"       "glmnet.fit" "lambda.min" "lambda.1se"
+
+> abline(v=log(cv.leukemia.ridge$lambda.min), lty=2,lwd=3)
+> plot(leukemia.ridge, xvar='lambda')
+> abline(v=log(cv.leukemia.ridge$lambda.min), lty=2, lwd=3)
+> min(cv.leukemia.ridge$cvm)
+[1] 0.1688042
+
+> leukemia.ridge.finale <- glmnet(Leukemia$x, Leukemia$y,alpha=0 
++ family='binomial', lambda=cv.leukemia.ridge$lambda.min)
+
+dev.ratio == analogo di R quadro
+
+> plot(log(leukemia.ridge$lambda))
+> plot(log(leukemia.ridge$lambda), leukemia.ridge$dev.ratio,type='l') 
+   ==> output non perfettamente liscio
+Quindi col ridge funziona
+> abline(v=log(cv.leukemia.ridge$lambda.min), lty=2,lwd=3)
+
+Passiamo alla regressione LASSO:
+come prima, ma alpha=1
+> leukemia.lasso <- glmnet(Leukemia$x,Leukemia$y,alpha=1,
++ family='binomial',lambda.min=1e-4
+
+> plot(leukemia.lasso, xvar='lambda')
+   ==> grafico piu' interpretabile!!! perchè riduzione dei termini enorme
+   ---> cross validation
+> cv.leukemia.lasso <- cv.glmnet(Leukemia$x,Leukemia$y,alpha=1,
++ family='binomial', lambda.min=1e-4)
+> cv.leukemia.lasso$lambda.min
+[1] 0.009905821
+   =====> ma i valori di lambda non andrebbero confrontati perche si riferiscono a funzioni
+	   diverse, comunque e' molto piccolo
+> abline(v=log(cv.leukemia.lasso$lambda.min), lty=2, lwd=3)
+> abline(v=log(cv.leukemia.lasso$lambda.1se), lty=2, lwd=3)
+
+> min(cv.leukemia.lasso$cvm)
+[1] 0.2827724
+
+> max(leukemia.lasso$dev.ratio)
+[1] 0.9990327    ===> giusto che sia alta
+
+> max(leukemia.lasso$dev.ratio)
+[1] 0.9990327
+
+> leukemia.lasso.finale <- glmnet(Leukemia$x,Leukemia$y,alpha=1,
++ family='binomial',lambda=cv.leukemia.lasso$lambda.1se)
+
+> id.zero <- which(coef(leukemia.lasso.finale) == 0)
+> length(id.zero)
+[1] 3560
+> dim(Leukemia$x)
+[1]   72 3571
+> length(coef(leukemia.lasso.finale))
+[1] 3572
+> coef(leukemia.lasso.finale)[1]
+[1] -1.07346
+> id.nonzero <- which(coef(leukemia.lasso.finale) != 0)
+> length(id.nonzero)
+
+> varnames <- rownames(coef(leukemia.lasso.finale)[id.nonzero])
+
+> rownames(coef(leukemia.lasso.finale))[id.nonzero]
+ [1] "(Intercept)" "V456"        "V626"        "V672"        "V956"       
+ [6] "V979"        "V1219"       "V1652"       "V1946"       "V2481"      
+[11] "V3098"       "V3441"    
+

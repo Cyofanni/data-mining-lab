@@ -1,0 +1,24 @@
+- per installare una libreria:  ##install.packages('ISLR')
+- scopo: prevedere Sales in funzione delle altre 4 variabili
+- vedere tramite boxplot o istogramma se la distribuzione e' simmetrica
+- boxplot(dati$Sales ~ dati$Urban) ->  no differenza di vendita tra zone
+  urbane e non urbane -> possibile che Urban diventi non significativa
+- boxplot(dati$Sales ~ dati$US)  ->    differenze di variabilita' e di mediana
+  tra stati uniti ed estero
+- #vediamo se graficamente puo' esistere una interazione tra Price e ShelveLoc
+- m <- lm(Sales ~ Price + Urban + US + ShelveLoc, data = dati)
+   modello in cui tutte le variabili entrano linearmente senza interazione
+   summary -> e' tutto significativo eccetto Urban
+- m2 <-  update(m, . ~ . - Urban)   ---> toglie Urban dal modello
+- per confrontare 2 modelli annidati si usa il test F -> dice se
+  ha senso passare da un modello con p variabili ad 1 in cui tolgo q variabili
+- anova() --> analisi della varianza, non confronta modelli annidati in R,
+    e' un confronto tra le varianze (devianza etc..), non c'entra con 
+    l'analisi della varianza del libro!
+- anova(m2,m) -> prima quello piu' piccolo, poi quello piu' grande
+- la F e' una quantita' sempre maggiore di zero, e si rifiuta solo per
+  valori grandi
+- quando si inseriscono interazioni tra 2 quantitative -> difficile interpretazione --> non si mettono
+- m3 <- lm(Sales ~ Price + US + ShelveLoc + Price:ShelveLoc, data = dati)
+   -> se i due livelli sono non significativi -> l'interazione si puo' eliminare
+

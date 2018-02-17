@@ -1,0 +1,42 @@
+Grafico di dispersione tra variabile risposta e lstat -> la relazione non sembra lineare dal grafico,
+quella quadratica va meglio ma non basta, c'e' molta dispersione.
+Aumentando il grado del polinomio il modello si complica.
+I(lstat^2): I necessario per inserire quadrati.
+
+Altra possibilita' per inserire termini polinomiali: 
+
+
+
+Come si calcola la statistica F e come si calcola il confronto tra modelli:
+1. per un singolo modello, F = R2/(1-R2) * (n-p-1)/p
+pnorm, pt, pf ... : p + nome variabile (normale, t di student etc...)
+
+R^2 e' parente della devianza.
+
+
+CONFRONTO TRA I MODELLI:
+La statistica F confronta le somme dei quadrati dei residui
+f <- (rss1 - rss2) / rss2 * (504/1)
+qf(0.95, 1, 504)
+[1] 3.859975 : questo punto discrimina dove accettare e dove no
+
+L'approccio del p-value dice quanto i dati sostengono l'ipotesi.
+
+F(1, 504) e' pari a t^2
+
+
+
+##GENDER DISCRIMINATION
+setwd('...percorso...') per spostarsi in una cartella
+Bisogna assicurarsi che R riconosca correttamente le variabili quantitative e qualitative
+is.factor(dati$Gender) -> usarlo per controllare se e' una variabile qualitativa
+ boxplot(dati$Salary)
+I baffi del boxplot sono distanti 1.5 dalla scatola.
+Salary = y
+x = Gender
+x2 = Experience
+A occhio il genere nel modello sembra significativo.
+> points(dati$Experience[dati$Gender == 'Female'], dati$Salary[dati$Gender=='Female'], col='pink')
+> points(dati$Experience[dati$Gender == 'Male'], dati$Salary[dati$Gender=='Male'], col='blue')
+
+modello <- lm(Salary ~ Gender + Experience, data = dati)

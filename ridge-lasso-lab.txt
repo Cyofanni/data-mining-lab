@@ -1,0 +1,64 @@
+Dati 'Hitters'
+library(glmnet)  -->    per ridge e lasso
+glmnet richiede una sintassi diversa da quella standard
+> y <- hitters$Salary
+X <- model.matrix(Salary ~ ., data=hitters)[,-1]
+> m.ridge <- glmnet(X, y, alpha=0)  //alpha fa variare il tipo di regolarizzazione
+  ---> e' un operazione immediata, a differenza della selezione automatica
+   NB: il summary non funziona qui
+> plot(m.ridge) :  da' un'idea di come si comporta la stima dei coefficienti;
+   a noi interessa vedere come vanno i coefficienti rispetto a lambda, quindi:
+	> plot(m.ridge, xvar='lambda'): tutte (19) le variabili sono schiacciate
+	    al crescere di lambda
+#cross validation per scegliere lambda
+#bisogna settare un seed, poi quando si ristima con il lasso bisogna scegliere
+ lo stesso seed
+> set.seed(2906)
+> cv.ridge <- cv.glmnet(X, y, alpha=0)
+Di default cross validation con 10 fold
+> names(cv.ridge)
+ [1] "lambda"     "cvm"        "cvsd"       "cvup"       "cvlo"      
+ [6] "nzero"      "name"       "glmnet.fit" "lambda.min" "lambda.1se"
+> plot(cv.ridge)
+> lambda.min.ridge <- cv.ridge$lambda.min
+> lambda.min.ridge
+[1] 28.01718
+> lambda.min.ridge <- cv.ridge$lambda.min
+> lambda.min.ridge
+[1] 28.01718
+> cv.ridge$cvm[]
+> cv.ridge$cvm[cv.ridge$lambda == lambda.min.ridge]
+> m.ridge.min <- glmnet(X, y, alpha=0, lambda=lambda.min.ridge)
+> m <- lm(Salary ~ ., data=hitters)
+> cbind(coef(m), coef(m.ridge.min))
+> abline(v=log(lambda.ridge.1se), lty=1, lwd=2)
+> plot(m.ridge$lambda, m.ridge$dev.ratio, type='l')
+> abline(v=lambda.min.ridge, lty=2, lwd=2)
+###############################################
+
+LASSO
+> m.lasso <- glmnet(X, y, alpha=1)     // stessa cosa di prima, solo alpha cambia
+ ==> output simile
+> plot(m.lasso)     ===> in norma 1
+> plot(m.lasso, xvar='lambda')
+> set.seed(2906) ;  cv.lasso <- cv.glmnet(X,y,alpha=1)
+> cv.lasso$lambda.min
+[1] 2.935124
+> cv.lasso$lambda.1se    // lambda staccato di uno scarto
+[1] 76.16717
+> m.lasso.min <- glmnet(X, y, alpha=1, lambda=cv.lasso$lambda.min)
+> m.lasso.min
+
+Call:  glmnet(x = X, y = y, alpha = 1, lambda = cv.lasso$lambda.min) 
+
+     Df   %Dev Lambda
+[1,] 13 0.5327  2.935
+
+> cbind(coef(m), coef(m.ridge.min), coef(m.lasso.min))
+
+
+> previsione.ridge <- predict(m.ridge.min, newx=X)
+> previsione.ridge <- predict(m.lasso.min, newx=X)
+
+Quando si attacca il pezzo di penalizzazione i residui non sono piu' interpretabili
+graficamente.
